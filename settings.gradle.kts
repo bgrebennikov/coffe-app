@@ -1,2 +1,2 @@
-rootProject.name = "kotlin-jwt-spring-security-6"
+rootProject.name = "coffe-app"
 
