@@ -1,6 +1,8 @@
 package com.example.sample.controller
 
 import com.example.sample.model.authentication.AuthenticationRequest
+import com.example.sample.model.authentication.AuthenticationResponse
+import com.example.sample.model.authentication.RefreshRequest
 import com.example.sample.model.authentication.RegisterRequest
 import com.example.sample.service.UserService
 import org.springframework.http.HttpStatus.CREATED
@@ -22,5 +24,10 @@ class AuthenticationController(
     @PostMapping("/authenticate")
     fun authenticate(@RequestBody authenticationRequest: AuthenticationRequest) =
         userService.authenticate(authenticationRequest)
+
+    @ResponseStatus(OK)
+    @PostMapping("/refresh")
+    fun refresh(@RequestBody refreshRequest: RefreshRequest): AuthenticationResponse =
+        userService.refresh(refreshRequest)
 
 }

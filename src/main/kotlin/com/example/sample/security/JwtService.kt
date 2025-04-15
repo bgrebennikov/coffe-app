@@ -57,10 +57,12 @@ class JwtService {
 
     fun generateAccessToken(userDetails: UserDetails): String = generateAccessToken(HashMap(), userDetails)
 
-    fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+    fun isAccessTokenValid(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
         return username == userDetails.username && !isTokenExpired(token)
     }
+
+    fun isRefreshTokenValid(token: String): Boolean = !isTokenExpired(token)
 
     private fun isTokenExpired(token: String): Boolean = extractExpiration(token).before(Date())
 
