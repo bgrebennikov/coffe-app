@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class UserService(
+class AuthService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
