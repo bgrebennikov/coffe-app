@@ -18,8 +18,7 @@ class AuthenticationController(
 
     @ResponseStatus(CREATED)
     @PostMapping("/register")
-    fun register(@RequestBody registerRequest: RegisterRequest)
-    = authService.register(registerRequest)
+    fun register(@RequestBody registerRequest: RegisterRequest) = authService.register(registerRequest)
 
     @ResponseStatus(OK)
     @PostMapping("/authenticate")
