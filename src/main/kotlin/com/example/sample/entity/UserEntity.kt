@@ -1,5 +1,6 @@
 package com.example.sample.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import jakarta.validation.constraints.Size
 import org.springframework.security.core.GrantedAuthority
@@ -23,6 +24,7 @@ class UserEntity(
     private var username: String = "",
 
     @Column(name = "password", length = Integer.MAX_VALUE)
+    @JsonIgnore
     private var password: String = "",
 
     @Size(max = 20)
