@@ -21,6 +21,9 @@ class JwtService {
     @Value("\${custom.jwt.expiration}")
     lateinit var expirationTime: Number
 
+    @Value("\${custom.jwt.expiration_refresh}")
+    lateinit var expirationRefreshTime: Number
+
     fun extractUsername(token: String): String = extractClaim(token, Claims::getSubject)
 
     fun <T> extractClaim(token: String, claimsResolver: (Claims) -> T): T {
@@ -28,13 +31,22 @@ class JwtService {
         return claimsResolver(claims)
     }
 
-    fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String = Jwts.builder()
+    fun generateAccessToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String = Jwts.builder()
         .setClaims(extraClaims)
         .setSubject(userDetails.username)
         .setIssuedAt(Date(System.currentTimeMillis()))
         .setExpiration(Date(System.currentTimeMillis() + expirationTime.toLong()))
         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
         .compact()
+
+    fun generateRefreshToken(userDetails: UserDetails): String {
+        return Jwts.builder()
+            .setSubject(userDetails.username)
+            .setIssuedAt(Date(System.currentTimeMillis()))
+            .setExpiration(Date(System.currentTimeMillis() + expirationRefreshTime.toLong()))
+            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+            .compact()
+    }
 
     private fun extractAllClaims(token: String): Claims = Jwts
         .parserBuilder()
@@ -43,7 +55,7 @@ class JwtService {
         .parseClaimsJws(token) //json web signature
         .body
 
-    fun generateToken(userDetails: UserDetails): String = generateToken(HashMap(), userDetails)
+    fun generateAccessToken(userDetails: UserDetails): String = generateAccessToken(HashMap(), userDetails)
 
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)

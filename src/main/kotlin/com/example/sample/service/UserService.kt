@@ -34,9 +34,10 @@ class UserService(
 
         userRepository.save(user)
 
-        val token = jwtService.generateToken(user)
+        val token = jwtService.generateAccessToken(user)
+        val refreshToken = jwtService.generateRefreshToken(user)
 
-        return AuthenticationResponse(token)
+        return AuthenticationResponse(token, refreshToken)
     }
 
     fun authenticate(authenticationRequest: AuthenticationRequest): AuthenticationResponse {
@@ -50,6 +51,9 @@ class UserService(
 
         val user = userRepository.findByUsername(authenticationRequest.username)
 
-        return AuthenticationResponse(jwtService.generateToken(user!!))
+        return AuthenticationResponse(
+            jwtService.generateAccessToken(user!!),
+            jwtService.generateRefreshToken(user),
+        )
     }
 }

@@ -27,3 +27,4 @@ custom:
   jwt:
     secret: 77397A24432646294A404E635266556A586E3272357538782F4125442A472D4B
     expiration: 720000
+    expiration_refresh: 2592000000
