@@ -19,7 +19,7 @@ class ApplicationSecurityConfig(
 
 
     @Bean
-    fun userDetailsService() = UserDetailsService { userRepository.findByUsername(it) }
+    fun userDetailsService() = UserDetailsService { userRepository.findByPhone(it) }
 
 
     @Bean
