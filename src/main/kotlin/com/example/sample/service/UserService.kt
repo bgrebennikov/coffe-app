@@ -13,7 +13,7 @@ class UserService(
 ) {
 
     fun getProfile(userPrincipal: UserDetails): UserEntity {
-        return userRepository.findByUsername(userPrincipal.username)
+        return userRepository.findByPhone(userPrincipal.username)
             ?: throw UsernameNotFoundException("User not found")
     }
 
