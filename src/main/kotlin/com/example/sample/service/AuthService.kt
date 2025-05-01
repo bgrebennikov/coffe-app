@@ -25,13 +25,14 @@ class AuthService(
 ) {
     fun register(registerRequest: RegisterRequest): AuthenticationResponse {
 
-        if (userRepository.findByUsernameOrEmail(registerRequest.username, registerRequest.email) != null) {
+        if (userRepository.findByPhone(registerRequest.phone) != null) {
             throw RegisteredException()
         }
 
         val user = UserEntity(
             email = registerRequest.email,
-            username = registerRequest.username,
+            phone = registerRequest.phone,
+            firstName = registerRequest.firstName,
             password = passwordEncoder.encode(registerRequest.password)
         )
 
@@ -45,14 +46,18 @@ class AuthService(
 
     fun authenticate(authenticationRequest: AuthenticationRequest): AuthenticationResponse {
 
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                authenticationRequest.username,
-                authenticationRequest.password
+        val user = try {
+            authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    authenticationRequest.phone,
+                    authenticationRequest.password
+                )
             )
-        )
 
-        val user = userRepository.findByUsername(authenticationRequest.username)
+            userRepository.findByPhone(authenticationRequest.phone)
+        } catch (ex: Exception) {
+            throw BadCredentialsException(ex.message)
+        }
 
         return AuthenticationResponse(
             jwtService.generateAccessToken(user!!),
@@ -66,7 +71,7 @@ class AuthService(
         }
 
         val username = jwtService.extractUsername(refreshTokenRequest.refreshToken)
-        val user = userRepository.findByUsername(username) ?: throw UsernameNotFoundException("User not found")
+        val user = userRepository.findByPhone(username) ?: throw UsernameNotFoundException("User not found")
 
         return AuthenticationResponse(
             jwtService.generateAccessToken(user),
