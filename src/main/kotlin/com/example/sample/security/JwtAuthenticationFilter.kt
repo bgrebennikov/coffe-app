@@ -1,5 +1,6 @@
 package com.example.sample.security
 
+import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -36,22 +37,36 @@ class JwtAuthenticationFilter(
         val lengthOfBearerWithSpace = 7
         val jwtToken = authHeader.substring(lengthOfBearerWithSpace)
 
-        val username = jwtService.extractUsername(jwtToken)
+        try {
+            val username = jwtService.extractUsername(jwtToken)
 
-        log.info("jwt: $jwtToken\nusername: $username")
+            log.info("jwt: $jwtToken\nusername: $username")
 
-        if (SecurityContextHolder.getContext().authentication == null) {
-            val userDetails = userDetailsService.loadUserByUsername(username)
+            if (SecurityContextHolder.getContext().authentication == null) {
+                val userDetails = userDetailsService.loadUserByUsername(username)
 
-            if (jwtService.isAccessTokenValid(jwtToken, userDetails)) {
-                val authenticationToken = UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.authorities
-                )
-                authenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
-                SecurityContextHolder.getContext().authentication = authenticationToken
+                if (jwtService.isAccessTokenValid(jwtToken, userDetails)) {
+                    val authenticationToken = UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.authorities
+                    )
+                    authenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
+                    SecurityContextHolder.getContext().authentication = authenticationToken
+                }
             }
+        } catch (e: ExpiredJwtException) {
+            log.warn("JWT expired", e)
+            response.status = 401
+            response.writer.write("Token expired")
+            response.writer.flush()
+            return
+        } catch (e: Exception) {
+            log.error("Exception occurred", e)
+            response.status = 401
+            response.writer.write("Token invalid")
+            response.writer.flush()
+            return
         }
         filterChain.doFilter(request, response)
 

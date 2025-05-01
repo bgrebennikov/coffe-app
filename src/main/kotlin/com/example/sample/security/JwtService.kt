@@ -52,7 +52,7 @@ class JwtService {
         .parserBuilder()
         .setSigningKey(getSignInKey())
         .build()
-        .parseClaimsJws(token) //json web signature
+        .parseClaimsJws(token)
         .body
 
     fun generateAccessToken(userDetails: UserDetails): String = generateAccessToken(HashMap(), userDetails)
